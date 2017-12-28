@@ -1,0 +1,90 @@
+
+function get_products($product_id=0)
+	{
+       $query = 'SELECT * FROM products
+                           WHERE Product_ID=:_product_ID';
+       $statement2 = $db->prepare($query);
+       $statement2->bindValue(':_product_ID', $product_id);
+       $bool=$statement2->execute();
+       $prod= $statement2->fetch(PDO::FETCH_ASSOC);
+       $statement2->closeCursor();
+
+		$response=array();
+		
+		if($bool)
+		{
+			$response[]=$prod;
+		}
+		else{
+			$response=array(
+				'status' => 0,
+				'status_message' =>'Product Retrieval Failed.'
+			);
+		}
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+function delete_product($product_id)
+	{
+
+    $query = 'DELETE FROM products
+              WHERE Product_ID = :_product_ID';
+    $statement = $db->prepare($query);
+    $statement->bindValue(':_product_ID', $product_id);
+    $success = $statement->execute();
+    $statement->closeCursor();    
+
+		if($success)
+		{
+			$response=array(
+				'status' => 1,
+				'status_message' =>'Product Deleted Successfully.'
+			);
+		}
+		else
+		{
+			$response=array(
+				'status' => 0,
+				'status_message' =>'Product Deletion Failed.'
+			);
+		}
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+
+function update_product($product_id)
+	{
+		global $connection;
+		parse_str(file_get_contents("php://input"),$post_vars);
+		$product_name=$post_vars["product_name"];
+		$price=$post_vars["price"];
+		$quantity=$post_vars["quantity"];
+		$seller=$post_vars["seller"];
+		$query="UPDATE products SET product_name='{$product_name}', price={$price}, quantity={$quantity}, seller='{$seller}' WHERE id=".$product_id;
+		if(mysqli_query($connection, $query))
+		{
+			$response=array(
+				'status' => 1,
+				'status_message' =>'Product Updated Successfully.'
+			);
+		}
+		else
+		{
+			$response=array(
+				'status' => 0,
+				'status_message' =>'Product Updation Failed.'
+			);
+		}
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
+echo"Got into insert ";
+		parse_str(file_get_contents("php://input"),$post_vars);
+		$_product_name=$post_vars["product_name"];
+		$_price=$post_vars["price"];
+		$_quantity=$post_vars["quantity"];
+		$_seller=$post_vars["seller"];
+		echo" data:= "+$_product_name+$_price+$_quantity+$_seller;
